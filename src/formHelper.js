@@ -2,6 +2,7 @@
 //! version : 0.0.1
 //! authors : Yanhan, formHelper.js contributors
 //! license : MIT
+//! https://github.com/naydog/formHelper/
 (function($) {
     var FormHelper = function(form, action, args) {
 		this.$form = $(form);
