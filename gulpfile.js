@@ -1,5 +1,6 @@
 var gulp = require("gulp"),
-  uglify = require("gulp-uglify");
+  uglify = require("gulp-uglify"),
+  rename = require("gulp-rename");
 
 gulp.task('minifyjs', function() {
   var options = {
@@ -7,6 +8,7 @@ gulp.task('minifyjs', function() {
   };
   gulp.src(['src/*.js'])
     .pipe(uglify(options))
+    .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('dest/'));
 })
 
