@@ -1,10 +1,27 @@
 //! formHelper.js
-//! version : 0.1.1
+//! version : 0.1.2
 //! authors : Yanhan, formHelper.js contributors
 //! license : MIT
 //! https://github.com/naydog/formHelper/
 if (typeof jQuery === 'undefined') {
     throw new Error('FormHelper requires jQuery');
+}
+
+if (!Array.prototype.indexOf){
+  Array.prototype.indexOf = function(elt /*, from*/){
+    var len = this.length >>> 0;
+
+    var from = Number(arguments[1]) || 0;
+    from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+    if (from < 0)
+      from += len;
+
+    for (; from < len; from++){
+      if (from in this && this[from] === elt)
+        return from;
+    }
+    return -1;
+  };
 }
 
 (function($) {
@@ -37,6 +54,11 @@ if (typeof jQuery === 'undefined') {
                 $(this).attr("checked", "checked");
               }
               break;
+              case "button":
+              case "submit":
+              case "reset":
+              case "image":
+              break;
               default:
               $(this).attr("value", val);
             }
@@ -59,9 +81,17 @@ if (typeof jQuery === 'undefined') {
 		_clearDefault: function() {
 			$("[name]", this.$form).each(function() {
 				if ($(this).is("input")) {
-          if ($(this).is(":radio") || $(this).is(":checkbox")) {
+          switch($(this).attr("type")) {
+            case "radio":
+            case "checkbox":
             $(this).removeAttr("checked");
-          } else {
+            break;
+            case "button":
+            case "submit":
+            case "reset":
+            case "image":
+            break;
+            default:
             $(this).removeAttr("value");
           }
 				} else if ($(this).is("select")) {
