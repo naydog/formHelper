@@ -1,6 +1,6 @@
 //! formHelper.js
 //! version : 0.0.1
-//! authors : Yanhan, Moment.js contributors
+//! authors : Yanhan, formHelper.js contributors
 //! license : MIT
 (function($) {
     var FormHelper = function(form, action, args) {
