@@ -1,0 +1,52 @@
+<html>
+<head>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <!-- <script type="text/javascript" src="../src/formHelper.js"></script> -->
+  <script type="text/javascript" src="../dest/formHelper.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    $("#cleardefault").click(function() {
+      $("#test-form").formHelper("clearDefault");
+    });
+    $("#setdefault").click(function() {
+      $("#test-form").formHelper("setDefault", {
+        field0: "hidden@zero",
+        field1: "text@one",
+        field2: "password@two",
+        field3: "email@three"
+      });
+    });
+    $("#serializejson").click(function() {
+      //$("#test-form").formHelper("serializeJson");
+      $("#output").html(JSON.stringify($("#test-form").serializeJson()));
+    });
+  });
+  </script>
+</head>
+<body>
+  <form id="test-form">
+    <label for="field10">field0</label>
+    <input name="field0" type="hidden"/>
+    <br>
+
+    <label for="field1">field1</label>
+    <input name="field1" type="text"/>
+    <br>
+
+    <label for="field2">field2</label>
+    <input name="field2" type="password"/>
+    <br>
+
+    <label for="field3">field3</label>
+    <input name="field3" type="email"/>
+    <br>
+
+    <button type="submit">Submit</button>
+    <button type="reset">Reset</button>
+  </form>
+  <button type="button" id="cleardefault">Clear default</button>
+  <button type="button" id="setdefault">Set default</button>
+  <button type="button" id="serializejson">Serialize Json</button>
+  <div id="output"></div>
+</body>
+</html>

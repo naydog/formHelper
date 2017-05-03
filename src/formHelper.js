@@ -1,19 +1,29 @@
 //! formHelper.js
-//! version : 0.0.1
+//! version : 0.1.1
 //! authors : Yanhan, formHelper.js contributors
 //! license : MIT
 //! https://github.com/naydog/formHelper/
+if (typeof jQuery === 'undefined') {
+    throw new Error('FormHelper requires jQuery');
+}
+
 (function($) {
     var FormHelper = function(form, action, args) {
 		this.$form = $(form);
-		this.action = action;
-		if (this["_" + action]) {
-			this["_" + action](args);
-		}
+    switch(typeof action) {
+      case "string":
+      this.action = action;
+  		if (this["_" + action]) {
+  			this["_" + action](args);
+  		}
+      break;
+      case "object":
+      break;
+    }
 	};
 
 	FormHelper.prototype = {
-        constructor: FormHelper,
+    constructor: FormHelper,
 
 		_setDefault: function (args) {
 			$("[name]", this.$form).each(function() {
@@ -40,15 +50,42 @@
 			});
 			this._reset();
 		},
+
 		_reset: function() {
 			this.$form[0].reset();
-		}
+		},
+
+    // _serializeJson: function(){
+  	// 	var arr = this.$form.serializeArray();
+  	// 	var obj = {};
+  	// 	for (var i = 0 ; i < arr.length; i++) {
+  	// 		if (obj[arr[i].name]) {
+  	// 			obj[arr[i].name] = [obj[arr[i].name], arr[i].value];
+  	// 		} else {
+  	// 			obj[arr[i].name]= arr[i].value;
+  	// 		}
+  	// 	}
+  	// 	return obj;
+  	// }
 	};
 
 	$.fn.formHelper = function(action, args) {
-        var params = arguments;
-        return this.each(function() {
-			new FormHelper(this, action, args);
-        });
-    };
+    var params = arguments;
+    return this.each(function() {
+      new FormHelper(this, action, args);
+    });
+  };
+
+  $.fn.serializeJson = function() {
+		var arr = $(this).serializeArray();
+		var obj = {};
+		for (var i = 0 ; i < arr.length; i++) {
+			if (obj[arr[i].name]) {
+				obj[arr[i].name] = [obj[arr[i].name], arr[i].value];
+			} else {
+				obj[arr[i].name]= arr[i].value;
+			}
+		}
+		return obj;
+	};
 }(window.jQuery));
