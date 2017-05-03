@@ -1,8 +1,8 @@
 <html>
 <head>
   <script type="text/javascript" src="js/jquery.min.js"></script>
-  <!-- <script type="text/javascript" src="../src/formHelper.js"></script> -->
-  <script type="text/javascript" src="../dest/formHelper.min.js"></script>
+  <script type="text/javascript" src="../src/formHelper.js"></script>
+  <!-- <script type="text/javascript" src="../dest/formHelper.min.js"></script> -->
   <script type="text/javascript">
   $(function() {
     $("#cleardefault").click(function() {
@@ -13,11 +13,14 @@
         field0: "hidden@zero",
         field1: "text@one",
         field2: "password@two",
-        field3: "email@three"
+        field3: "email@three",
+        field4: ["2", "3"],
+        field5: "3",
+        field6: "2",
+        field7: ["1", "3"],
       });
     });
     $("#serializejson").click(function() {
-      //$("#test-form").formHelper("serializeJson");
       $("#output").html(JSON.stringify($("#test-form").serializeJson()));
     });
   });
@@ -39,6 +42,34 @@
 
     <label for="field3">field3</label>
     <input name="field3" type="email"/>
+    <br>
+
+    <label for="field4">field4</label>
+    <input name="field4" type="checkbox" value="1">1</input>
+    <input name="field4" type="checkbox" value="2">2</input>
+    <input name="field4" type="checkbox" value="3">3</input>
+    <br>
+
+    <label for="field5">field5</label>
+    <input name="field5" type="radio" value="1">1</input>
+    <input name="field5" type="radio" value="2">2</input>
+    <input name="field5" type="radio" value="3">3</input>
+    <br>
+
+    <label for="field6">field6</label>
+    <select name="field6">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
+    <br>
+
+    <label for="field7">field7</label>
+    <select name="field7" multiple="multiple">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </select>
     <br>
 
     <button type="submit">Submit</button>

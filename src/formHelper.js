@@ -27,13 +27,31 @@ if (typeof jQuery === 'undefined') {
 
 		_setDefault: function (args) {
 			$("[name]", this.$form).each(function() {
-				if ($(this).is("input")) {
-					$(this).attr("value", args[$(this).attr("name")]);
-				} else if ($(this).is("select")){
-					$("option[value='" + args[$(this).attr("name")] + "']", this).attr("selected", "selected");
-				} else if ($(this).is("textarea")) {
-					$(this).html(args[$(this).attr("name")]);
-				}
+        var val = args[$(this).attr("name")];
+        if (val) {
+          if ($(this).is("input")) {
+            switch($(this).attr("type")) {
+              case "radio":
+              case "checkbox":
+              if (val === $(this).val() || (val.length && val.indexOf($(this).val()) > -1)) {
+                $(this).attr("checked", "checked");
+              }
+              break;
+              default:
+              $(this).attr("value", val);
+            }
+  				} else if ($(this).is("select")) {
+            if (val.length) {
+              for (var i = 0; i < val.length; i++) {
+                $("option[value='" + val[i] + "']", this).attr("selected", "selected");
+              }
+            } else {
+              $("option[value='" + val + "']", this).attr("selected", "selected");
+            }
+  				} else if ($(this).is("textarea")) {
+  					$(this).html(val);
+  				}
+        }
 			});
 			this._reset();
 		},
@@ -41,8 +59,12 @@ if (typeof jQuery === 'undefined') {
 		_clearDefault: function() {
 			$("[name]", this.$form).each(function() {
 				if ($(this).is("input")) {
-					$(this).removeAttr("value");
-				} else if ($(this).is("select")){
+          if ($(this).is(":radio") || $(this).is(":checkbox")) {
+            $(this).removeAttr("checked");
+          } else {
+            $(this).removeAttr("value");
+          }
+				} else if ($(this).is("select")) {
 					$("option", this).removeAttr("selected");
 				} else if ($(this).is("textarea")) {
 					$(this).html(null);
@@ -55,18 +77,9 @@ if (typeof jQuery === 'undefined') {
 			this.$form[0].reset();
 		},
 
-    // _serializeJson: function(){
-  	// 	var arr = this.$form.serializeArray();
-  	// 	var obj = {};
-  	// 	for (var i = 0 ; i < arr.length; i++) {
-  	// 		if (obj[arr[i].name]) {
-  	// 			obj[arr[i].name] = [obj[arr[i].name], arr[i].value];
-  	// 		} else {
-  	// 			obj[arr[i].name]= arr[i].value;
-  	// 		}
-  	// 	}
-  	// 	return obj;
-  	// }
+    _validate: function(args) {
+      //this.$form
+    },
 	};
 
 	$.fn.formHelper = function(action, args) {
