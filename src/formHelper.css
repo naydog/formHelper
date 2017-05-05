@@ -1,0 +1,54 @@
+.fh-file-input {
+	width: 140px;
+}
+
+.fh-file-preview {
+	width: 100%;
+	height: 140px;
+	overflow: hidden;
+}
+
+.fh-file-preview-wrapper {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.fh-file-preview-fake {
+	/* used to display image on IE */
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale);
+	width: 100%;
+	overflow: hidden;
+}
+
+.fh-file-preview-size-fake {
+	/* get original size of image on IE */
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=image);
+	width: 100%;
+	visibility: hidden;
+	overflow: hidden;
+}
+
+.fh-file-preview-img {
+	/* display preview on FF */
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.fh-file-input>.fh-file-input-wrapper {
+	width: 1px;
+	height: 1px;
+  overflow: hidden;
+  /*visibility: hidden;
+  position: absolute;
+  display: none;
+  top: -10000px;*/
+}
+/*
+.fh-file-input > .fh-file-input-wrapper > .fh-file-input-control {
+  position: absolute;  height: 100%; top: -100px; left: -100px; opacity: 0;
+  width: 50px;
+  margin-left: -160px !important;
+  margin-left: -162px;
+}*/
