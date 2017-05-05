@@ -4,18 +4,19 @@ var gulp = require("gulp"),
   cleancss = require('gulp-clean-css');
 
 gulp.task('minifyjs', function() {
-  var options = {
-    preserveComments: 'license'
-  };
   gulp.src(['src/*.js'])
-    .pipe(uglify(options))
+    .pipe(uglify({
+      preserveComments: 'license'
+    }))
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('dest/'));
 });
 
 gulp.task('cleancss', function() {
   gulp.src(['src/*.css'])
-    .pipe(cleancss())
+    .pipe(cleancss({
+      compatibility: 'ie7'
+    }))
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('dest/'));
 });
