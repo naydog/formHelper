@@ -1,5 +1,5 @@
 //! formHelper.js
-//! version : 0.1.4
+//! version : 0.1.5
 //! authors : Yanhan, formHelper.js contributors
 //! license : MIT
 //! https://github.com/naydog/formHelper/
@@ -29,8 +29,9 @@ if (typeof jQuery === 'undefined') {
     constructor: FormHelper,
 
 		_setDefault: function (args) {
-      var exception = (args && args.exception) || [];
-      var values = (args && args.values) || {};
+      var opts = args || {};
+      var exception = opts.exception || [];
+      var values = opts.values || {};
 			$("[name]", this.$form).each(function() {
         var val = values[$(this).attr("name")];
         if (val && $.inArray($(this).attr("name"), exception) === -1) {
@@ -67,7 +68,8 @@ if (typeof jQuery === 'undefined') {
 		},
 
 		_clearDefault: function(args) {
-      var exception = (args && args.exception) || [];
+      var opts = args || {};
+      var exception = opts.exception || [];
 			$("[name]", this.$form).each(function() {
         if ($.inArray($(this).attr("name"), exception) === -1) {
           if ($(this).is("input")) {
@@ -98,8 +100,84 @@ if (typeof jQuery === 'undefined') {
 			this.$form[0].reset();
 		},
 
+    _concatCheckbox: function(args) {
+      var $form = this.$form;
+      if (args && args.checkboxName && args.destInputName) {
+        if ($("[name='" + args.destInputName + "']", $form).size() === 0) {
+          $form.append("<input type='hidden' name='" + args.destInputName + "'/>");
+        }
+        $("[name='" + args.checkboxName + "']", $form).on("change", function() {
+          var s = [];
+          $("[name='" + args.checkboxName + "']:checked", $form).each(function(idx){
+            if(idx > 0) {
+              s.push(args.separator || ",");
+            }
+            s.push($(this).val());
+          });
+          $("[name='" + args.destInputName + "']", $form).val(s.join(""));
+        });
+      }
+    },
+
+    /* args: {
+        fields: {
+            field1: {
+              "number":{}
+            }
+        }
+      }
+    */
     _validate: function(args) {
-      //this.$form
+      var $form = this.$form;
+      var opts = args || {};
+      var fields = opts.fields || {};
+
+      var _updateFormStatus = function() {
+        if ($(".fh-input-error", $form).size() > 0) {
+          $form.removeClass("fh-input-success").addClass("fh-input-error");
+          $("[type='submit']", $form).attr("disabled", "disabled");
+        } else {
+          $form.removeClass("fh-input-error").addClass("fh-input-success");
+          $("[type='submit']", $form).removeAttr("disabled");
+        }
+      };
+
+      $("[name]", this.$form).each(function() {
+        var name = $(this).attr("name");
+        if (!fields[name]) {
+          fields[name] = {};
+        }
+        if (!fields[name]["required"] && $(this).attr("required")) {
+          fields[name]["required"] = {};
+        }
+        var validata = [];
+        for (var item in fields[name]) {
+          var errMsg = fields[name][item].message || $.fn.formHelper.validators[item].message;
+          $(this).after("<small class='help-block hidden' fh-validator='" + item + "' fh-for='" + name + "'>" + errMsg + "</small>");
+          validata.push(item);
+        }
+        $form.data("fh-validator." + name, validata);
+        $(this).on("change", function() {
+          var valis = $form.data("fh-validator." + name);
+          for (var i = 0; i < valis.length; i++) {
+            var validator = $.fn.formHelper.validators[valis[i]];
+            if (validator) {
+              if (validator.validate($(this)) === true) {
+                $(this).siblings("small.help-block[fh-validator='" + valis[i] + "']").addClass("hidden");
+              } else {
+                $(this).siblings("small.help-block[fh-validator='" + valis[i] + "']").removeClass("hidden");
+              }
+            }
+          }
+          if ($(this).siblings("small.help-block:not('.hidden')").size() > 0) {
+            $(this).removeClass("fh-input-success").addClass("fh-input-error");
+          } else {
+            $(this).removeClass("fh-input-error");
+          }
+          _updateFormStatus();
+        });
+
+      });
     },
 
     _fileInput: function(args) {
@@ -269,6 +347,8 @@ if (typeof jQuery === 'undefined') {
     }
 	};
 
+
+
 	$.fn.formHelper = function(action, args) {
     var params = arguments;
     return this.each(function() {
@@ -288,4 +368,28 @@ if (typeof jQuery === 'undefined') {
 		}
 		return obj;
 	};
+
+  $.fn.formHelper.validators = {};
+
+}(window.jQuery));
+
+(function($) {
+  $.fn.formHelper.validators.number = {
+    message: "must be a number",
+    validate: function($input) {
+      var val = $input.val();
+      if (val === '') {
+        return true;
+      }
+      return /^(?:-?(?:0|[1-9][0-9]*))$/.test(val);
+    }
+  };
+
+  $.fn.formHelper.validators.required = {
+    message: "required",
+    validate: function($input) {
+      var val = $input.val();
+      return val != '';
+    }
+  };
 }(window.jQuery));
