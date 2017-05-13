@@ -175,14 +175,14 @@ if (typeof jQuery === 'undefined') {
           for (var item in valis) {
             var validator = $.fn.formHelper.validators[item];
             if (validator) {
-              if (validator.validate($this) === true) {
+              if (validator.validate($this, fields[name][item][opts]) === true) {
                 $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).addClass("hidden");
               } else {
                 $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).removeClass("hidden");
               }
             }
           }
-          if ($("[fh-validator='" + item + "'][fh-for='" + name + "']:not('.hidden')", $form).size() > 0) {
+          if ($("[fh-for='" + name + "']:not('.hidden')", $form).size() > 0) {
             $control.removeClass("fh-input-success").addClass("fh-input-error");
           } else {
             $control.removeClass("fh-input-error").addClass("fh-input-success");
@@ -191,6 +191,21 @@ if (typeof jQuery === 'undefined') {
         };
         $(this).on("change", handleEvent);
         $(this).on("keyup", handleEvent);
+      });
+
+      var _validateAllControls = function() {
+        $("[name]", $form).each(function() {
+          $(this).trigger("change");
+          $(this).trigger("keyup");
+        });
+      }
+      $form.submit(function() {
+        _validateAllControls();
+        _updateFormStatus();
+        if ($("[type='submit']", $form).attr("disabled")) {
+          return false;
+        }
+        return true;
       });
     },
 
@@ -362,7 +377,6 @@ if (typeof jQuery === 'undefined') {
 	};
 
 
-
 	$.fn.formHelper = function(action, args) {
     var params = arguments;
     return this.each(function() {
@@ -388,6 +402,17 @@ if (typeof jQuery === 'undefined') {
 }(window.jQuery));
 
 (function($) {
+  $.fn.formHelper.validators.required = {
+    message: "required",
+    validate: function($input) {
+      if ($input.is(":checkbox, :radio")) {
+        return $("[name='" + $input.attr("name") + "']:checked", $input.parentsUntil("form")).size() > 0;
+      }
+      var val = $input.val();
+      return val && val != '';
+    }
+  };
+
   $.fn.formHelper.validators.integer = {
     message: "must be a number",
     validate: function($input) {
@@ -399,14 +424,14 @@ if (typeof jQuery === 'undefined') {
     }
   };
 
-  $.fn.formHelper.validators.required = {
-    message: "required",
-    validate: function($input) {
-      if ($input.is(":checkbox, :radio")) {
-        return $("[name='" + $input.attr("name") + "']:checked", $input.parentsUntil("form")).size() > 0;
-      }
+  $.fn.formHelper.validators.regexp = {
+    message: "must be a number",
+    validate: function($input, opts) {
       var val = $input.val();
-      return val != '';
+      if (val === '') {
+        return true;
+      }
+      return opts.regexp && opts.regexp.test(val);
     }
   };
 }(window.jQuery));
