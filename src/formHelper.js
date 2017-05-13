@@ -142,41 +142,55 @@ if (typeof jQuery === 'undefined') {
         }
       };
 
-      $("[name]", this.$form).each(function() {
+      $("[name]", $form).each(function() {
         var name = $(this).attr("name");
+        var $control = $(this);
+        if ($control.is(":checkbox, :radio")) {
+          $control = $("[name='" + name + "']", $form);
+          while($control.size() > 1) {
+            $control = $control.parent();
+          }
+        }
         if (!fields[name]) {
           fields[name] = {};
         }
         if (!fields[name]["required"] && $(this).attr("required")) {
           fields[name]["required"] = {};
         }
-        var validata = [];
+        var validata = {};
         for (var item in fields[name]) {
           var errMsg = fields[name][item].message || $.fn.formHelper.validators[item].message;
-          $(this).after("<small class='help-block hidden' fh-validator='" + item + "' fh-for='" + name + "'>" + errMsg + "</small>");
-          validata.push(item);
+          if ($("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).size() == 0) {
+            $control.after("<small class='help-block hidden' fh-validator='" + item + "' fh-for='" + name + "'>" + errMsg + "</small>");
+            validata[item] = 1;
+          }
         }
-        $form.data("fh-validator." + name, validata);
-        $(this).on("change", function() {
+        if (!$form.data("fh-validator." + name)) {
+          $form.data("fh-validator." + name, validata);
+        }
+
+        var handleEvent = function(event) {
+          $this = $(event.target);
           var valis = $form.data("fh-validator." + name);
-          for (var i = 0; i < valis.length; i++) {
-            var validator = $.fn.formHelper.validators[valis[i]];
+          for (var item in valis) {
+            var validator = $.fn.formHelper.validators[item];
             if (validator) {
-              if (validator.validate($(this)) === true) {
-                $(this).siblings("small.help-block[fh-validator='" + valis[i] + "']").addClass("hidden");
+              if (validator.validate($this) === true) {
+                $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).addClass("hidden");
               } else {
-                $(this).siblings("small.help-block[fh-validator='" + valis[i] + "']").removeClass("hidden");
+                $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).removeClass("hidden");
               }
             }
           }
-          if ($(this).siblings("small.help-block:not('.hidden')").size() > 0) {
-            $(this).removeClass("fh-input-success").addClass("fh-input-error");
+          if ($("[fh-validator='" + item + "'][fh-for='" + name + "']:not('.hidden')", $form).size() > 0) {
+            $control.removeClass("fh-input-success").addClass("fh-input-error");
           } else {
-            $(this).removeClass("fh-input-error");
+            $control.removeClass("fh-input-error").addClass("fh-input-success");
           }
           _updateFormStatus();
-        });
-
+        };
+        $(this).on("change", handleEvent);
+        $(this).on("keyup", handleEvent);
       });
     },
 
@@ -374,7 +388,7 @@ if (typeof jQuery === 'undefined') {
 }(window.jQuery));
 
 (function($) {
-  $.fn.formHelper.validators.number = {
+  $.fn.formHelper.validators.integer = {
     message: "must be a number",
     validate: function($input) {
       var val = $input.val();
@@ -388,6 +402,9 @@ if (typeof jQuery === 'undefined') {
   $.fn.formHelper.validators.required = {
     message: "required",
     validate: function($input) {
+      if ($input.is(":checkbox, :radio")) {
+        return $("[name='" + $input.attr("name") + "']:checked", $input.parentsUntil("form")).size() > 0;
+      }
       var val = $input.val();
       return val != '';
     }

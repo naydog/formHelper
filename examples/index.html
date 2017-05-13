@@ -31,10 +31,13 @@
     $("#test-form").formHelper("validate", {
         fields: {
           field1: {
-              number:{}
+            integer:{}
           },
           field2: {
 
+          },
+          field4: {
+            required:{}
           }
         }
     });
@@ -84,23 +87,25 @@
 
           <div class="row">
             <div class="col-lg-6">
-              <label for="field4">field4</label>
-              <input name="field4" type="checkbox" value="1">1</input>
-              <input name="field4" type="checkbox" value="2">2</input>
-              <input name="field4" type="checkbox" value="3">3</input>
+              <div>
+                <label for="field4">field4</label>
+                <input name="field4" type="checkbox" value="1">1</input>
+                <input name="field4" type="checkbox" value="2">2</input>
+                <input name="field4" type="checkbox" value="3">3</input>
+              </div>
             </div>
             <div class="col-lg-6">
               <label for="field5">field5</label>
-              <input name="field5" type="radio" value="1">1</input>
-              <input name="field5" type="radio" value="2">2</input>
-              <input name="field5" type="radio" value="3">3</input>
+              <label><input name="field5" type="radio" value="1" required>1</label>
+              <label><input name="field5" type="radio" value="2" required>2</label>
+              <label><input name="field5" type="radio" value="3" required>3</label>
             </div>
           </div>
 
           <div class="row">
             <div class="col-lg-6">
               <label for="field6">field6</label>
-              <select name="field6" class="form-control">
+              <select name="field6" class="form-control" required>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -108,7 +113,7 @@
             </div>
             <div class="col-lg-6">
               <label for="field7">field7</label>
-              <select name="field7" multiple="multiple" class="form-control">
+              <select name="field7" multiple="multiple" class="form-control" required>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
