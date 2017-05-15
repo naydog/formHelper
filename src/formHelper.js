@@ -1,5 +1,5 @@
 //! formHelper.js
-//! version : 0.1.5
+//! version : 0.1.6
 //! authors : Yanhan, formHelper.js contributors
 //! license : MIT
 //! https://github.com/naydog/formHelper/
@@ -146,16 +146,22 @@ if (typeof jQuery === 'undefined') {
         var name = $(this).attr("name");
         var $control = $(this);
         if ($control.is(":checkbox, :radio")) {
-          $control = $("[name='" + name + "']", $form);
+          $control = $("[name='" + name + "']", $form).parent();
           while($control.size() > 1) {
             $control = $control.parent();
           }
+        }
+        if ($control.is(document)) {
+          $control = $("[name='" + name + "']:last", $form);
         }
         if (!fields[name]) {
           fields[name] = {};
         }
         if (!fields[name]["required"] && $(this).attr("required")) {
           fields[name]["required"] = {};
+        }
+        if (!fields[name]["email"] && $(this).attr("type") === "email") {
+          fields[name]["email"] = {};
         }
         var validata = {};
         for (var item in fields[name]) {
@@ -175,7 +181,7 @@ if (typeof jQuery === 'undefined') {
           for (var item in valis) {
             var validator = $.fn.formHelper.validators[item];
             if (validator) {
-              if (validator.validate($this, fields[name][item][opts]) === true) {
+              if (validator.validate($this, fields[name][item]) === true) {
                 $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).addClass("hidden");
               } else {
                 $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).removeClass("hidden");
@@ -199,10 +205,12 @@ if (typeof jQuery === 'undefined') {
           $(this).trigger("keyup");
         });
       }
-      $form.submit(function() {
+      $form.submit(function(e) {
         _validateAllControls();
-        _updateFormStatus();
-        if ($("[type='submit']", $form).attr("disabled")) {
+        console.log($form.hasClass("fh-input-error"));
+        if ($form.hasClass("fh-input-error")) {
+          e.preventDefault();
+          e.stopPropagation();
           return false;
         }
         return true;
@@ -424,8 +432,40 @@ if (typeof jQuery === 'undefined') {
     }
   };
 
+  $.fn.formHelper.validators.email = {
+    message: "must be an email",
+    validate: function($input) {
+      var val = $input.val();
+      if (val === '') {
+        return true;
+      }
+      return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(val);
+    }
+  };
+
+  $.fn.formHelper.validators.notFirst = {
+    message: "please select an option",
+    validate: function($input) {
+      if ($input.is("select")) {
+        return !$("option:first", $input).is(":selected");
+      }
+      return true;
+    }
+  };
+
+  $.fn.formHelper.validators.identical = {
+    message: "must be identical",
+    validate: function($input, opts) {
+      if (opts.field) {
+        var form = $input.parentsUntil("form");
+        return $input.val() === $("[name='" + opts.field + "']", form).val();
+      }
+      return true;
+    }
+  };
+
   $.fn.formHelper.validators.regexp = {
-    message: "must be a number",
+    message: "not valid value",
     validate: function($input, opts) {
       var val = $input.val();
       if (val === '') {

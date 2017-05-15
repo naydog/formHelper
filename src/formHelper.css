@@ -54,16 +54,16 @@
 }*/
 
 .fh-input-error {
-	border-color: #aa5555;
+	border-color: #d3016a;
 }
 
 .fh-input-error:focus {
-	border-color: #aa5555;
+	border-color: #d3016a;
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(170, 85, 85, .6);
           box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(170, 85, 85, .6);
 }
 
 .help-block {
-	color: #aa5555;
+	color: #e6393d;
 }

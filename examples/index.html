@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <script type="text/javascript" src="js/jquery.min.js"></script>
@@ -31,17 +32,27 @@
     $("#test-form").formHelper("validate", {
         fields: {
           field1: {
-            integer:{message: '数字'},
+            integer:{message: 'be an integer'},
             required: {}
           },
           field2: {
-            required: {}
+            required: {},
+            regexp: { message: "more than 6 letters and numbers" ,regexp: /(?!^\d+$)(?!^[a-zA-Z]+$)^[0-9a-zA-Z]+$/ }
+          },
+          fieldsame: {
+            identical: {field: "field2"}
           },
           field4: {
             required:{}
           },
+          fieldagree: {
+            required: {}
+          },
           field5: {
             required:{}
+          },
+          field6: {
+            notFirst:{}
           },
           field7: {
             required:{}
@@ -50,6 +61,7 @@
     })
     .on("submit", function(e) {
       e.preventDefault();
+      alert("submitted");
     });
 
     $("#serializejson").click(function() {
@@ -85,26 +97,36 @@
               <label for="field1">text</label>
               <input name="field1" type="text" class="form-control"/>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
               <label for="field2">password</label>
-              <input name="field2" type="password" class="form-control"/>
+              <input name="field2" type="text" class="form-control"/>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
+              <label for="fieldsame">repassword</label>
+              <input name="fieldsame" type="text" class="form-control"/>
+            </div>
+            <div class="col-lg-2">
               <label for="field3">email</label>
               <input name="field3" type="email" class="form-control"/>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div>
                 <label for="field4">chekbox group</label>
-                <input name="field4" type="checkbox" value="1">1</input>
-                <input name="field4" type="checkbox" value="2">2</input>
-                <input name="field4" type="checkbox" value="3">3</input>
+                <input name="field4" type="checkbox" value="1">1
+                <input name="field4" type="checkbox" value="2">2
+                <input name="field4" type="checkbox" value="3">3
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
+              <div>
+                <label for="fieldagree">chekbox</label>
+                <input name="fieldagree" type="checkbox" value="agree">agree
+              </div>
+            </div>
+            <div class="col-lg-4">
               <label for="field5">radio group</label>
               <label><input name="field5" type="radio" value="1">1</label>
               <label><input name="field5" type="radio" value="2">2</label>
