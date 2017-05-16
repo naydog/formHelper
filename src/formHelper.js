@@ -165,9 +165,9 @@ if (typeof jQuery === 'undefined') {
         }
         var validata = {};
         for (var item in fields[name]) {
-          var errMsg = fields[name][item].message || $.fn.formHelper.validators[item].message;
+          //var errMsg = fields[name][item].message || $.fn.formHelper.validators[item].message;
           if ($("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).size() == 0) {
-            $control.after("<small class='help-block hidden' fh-validator='" + item + "' fh-for='" + name + "'>" + errMsg + "</small>");
+            $control.after("<small class='help-block hidden' fh-validator='" + item + "' fh-for='" + name + "'></small>");
             validata[item] = 1;
           }
         }
@@ -185,6 +185,7 @@ if (typeof jQuery === 'undefined') {
                 $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).addClass("hidden");
               } else {
                 $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).removeClass("hidden");
+                $("[fh-validator='" + item + "'][fh-for='" + name + "']", $form).text(fields[name][item].message || $.fn.formHelper.validators[item].getMessage());
               }
             }
           }
@@ -416,67 +417,103 @@ if (typeof jQuery === 'undefined') {
 
 (function($) {
   $.fn.formHelper.validators.required = {
-    message: "required",
+    message: "请输入必填项目",
     validate: function($input) {
       if ($input.is(":checkbox, :radio")) {
         return $("[name='" + $input.attr("name") + "']:checked", $input.parentsUntil("form")).size() > 0;
       }
       var val = $input.val();
       return val && val != '';
+    },
+    getMessage: function() {
+      return this.message;
     }
   };
 
   $.fn.formHelper.validators.integer = {
-    message: "must be a number",
+    message: "请输入整数",
     validate: function($input) {
       var val = $input.val();
       if (val === '') {
         return true;
       }
       return /^(?:-?(?:0|[1-9][0-9]*))$/.test(val);
+    },
+    getMessage: function() {
+      return this.message;
     }
   };
 
   $.fn.formHelper.validators.email = {
-    message: "must be an email",
+    message: "请输入有效邮件地址",
     validate: function($input) {
       var val = $input.val();
       if (val === '') {
         return true;
       }
       return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(val);
+    },
+    getMessage: function() {
+      return this.message;
     }
   };
 
   $.fn.formHelper.validators.notFirst = {
-    message: "please select an option",
+    message: "请选择一项",
     validate: function($input) {
       if ($input.is("select")) {
         return !$("option:first", $input).is(":selected");
       }
       return true;
+    },
+    getMessage: function() {
+      return this.message;
     }
   };
 
   $.fn.formHelper.validators.identical = {
-    message: "must be identical",
+    message: "必须保持一致",
     validate: function($input, opts) {
       if (opts.field) {
-        var form = $input.parentsUntil("form");
+        var form = $input.parentsUntil("form").last().parent();
         return $input.val() === $("[name='" + opts.field + "']", form).val();
       }
       return true;
+    },
+    getMessage: function() {
+      return this.message;
+    }
+  };
+
+  $.fn.formHelper.validators.minLength = {
+    message: "需要输入至少{0}个字符",
+    _num: 0,
+    validate: function($input, opts) {
+      if (opts.length) {
+        this._num = opts.length;
+        var val = $input.val();
+        if (val.length < opts.length) {
+          return false;
+        }
+      }
+      return true;
+    },
+    getMessage: function() {
+      return this.message.replace("{0}", this._num);
     }
   };
 
   $.fn.formHelper.validators.regexp = {
-    message: "not valid value",
+    message: "请输入规定格式",
     validate: function($input, opts) {
       var val = $input.val();
       if (val === '') {
         return true;
       }
       return opts.regexp && opts.regexp.test(val);
+    },
+    getMessage: function() {
+      return this.message;
     }
   };
 }(window.jQuery));
