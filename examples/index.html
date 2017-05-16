@@ -59,8 +59,7 @@
           }
         }
     })
-    .on("submit", function(e) {
-      e.preventDefault();
+    .on("success.validate.fh", function(e) {
       alert("submitted");
     });
 

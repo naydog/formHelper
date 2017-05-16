@@ -207,13 +207,18 @@ if (typeof jQuery === 'undefined') {
       }
       $form.submit(function(e) {
         _validateAllControls();
-        console.log($form.hasClass("fh-input-error"));
         if ($form.hasClass("fh-input-error")) {
           e.preventDefault();
           e.stopPropagation();
           return false;
         }
-        return true;
+        var submitevent = $._data($form[0],"events")["success"];
+        if (submitevent && submitevent[0].namespace === "fh.validate") {
+          $form.trigger("success.validate.fh");
+          return false;
+        } else {
+          return true;
+        }
       });
     },
 
