@@ -417,7 +417,7 @@ if (typeof jQuery === 'undefined') {
 
 (function($) {
   $.fn.formHelper.validators.required = {
-    message: "请输入必填项目",
+    message: "请填写必填项目",
     validate: function($input) {
       if ($input.is(":checkbox, :radio")) {
         return $("[name='" + $input.attr("name") + "']:checked", $input.parentsUntil("form")).size() > 0;
@@ -438,6 +438,20 @@ if (typeof jQuery === 'undefined') {
         return true;
       }
       return /^(?:-?(?:0|[1-9][0-9]*))$/.test(val);
+    },
+    getMessage: function() {
+      return this.message;
+    }
+  };
+
+  $.fn.formHelper.validators.numeric = {
+    message: "请输入有效数字",
+    validate: function($input) {
+      var val = $input.val();
+      if (val === '') {
+        return true;
+      }
+      return !isNaN(parseFloat(val)) && isFinite(val);
     },
     getMessage: function() {
       return this.message;
@@ -486,13 +500,31 @@ if (typeof jQuery === 'undefined') {
   };
 
   $.fn.formHelper.validators.minLength = {
-    message: "需要输入至少{0}个字符",
+    message: "请输入至少{0}个字符",
     _num: 0,
     validate: function($input, opts) {
       if (opts.length) {
         this._num = opts.length;
         var val = $input.val();
         if (val.length < opts.length) {
+          return false;
+        }
+      }
+      return true;
+    },
+    getMessage: function() {
+      return this.message.replace("{0}", this._num);
+    }
+  };
+
+  $.fn.formHelper.validators.maxLength = {
+    message: "最多输入{0}个字符",
+    _num: 0,
+    validate: function($input, opts) {
+      if (opts.length) {
+        this._num = opts.length;
+        var val = $input.val();
+        if (val.length > opts.length) {
           return false;
         }
       }
