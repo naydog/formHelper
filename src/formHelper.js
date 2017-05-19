@@ -1,5 +1,5 @@
 //! formHelper.js
-//! version : 0.1.6
+//! version : 0.1.7
 //! authors : Yanhan, formHelper.js contributors
 //! license : MIT
 //! https://github.com/naydog/formHelper/
@@ -97,6 +97,11 @@ if (typeof jQuery === 'undefined') {
 		},
 
 		_reset: function() {
+      this.$form.removeClass("fh-input-error").removeClass("fh-input-success");
+      $(".fh-input-error", this.$form).removeClass("fh-input-error");
+      $(".fh-input-success", this.$form).removeClass("fh-input-success");
+      $(".help-block", this.$form).addClass("hidden");
+      $("[type='submit']", this.$form).removeAttr("disabled");
 			this.$form[0].reset();
 		},
 
@@ -129,6 +134,7 @@ if (typeof jQuery === 'undefined') {
     */
     _validate: function(args) {
       var $form = this.$form;
+      var thisScope = this;
       var opts = args || {};
       var fields = opts.fields || {};
 
@@ -150,10 +156,13 @@ if (typeof jQuery === 'undefined') {
           while($control.size() > 1) {
             $control = $control.parent();
           }
+          if ($control.is(document)) {
+            $control = $("[name='" + name + "']:last", $form);
+          }
+        } else if ($control.parent().hasClass("input-group")) {
+          $control = $control.parent();
         }
-        if ($control.is(document)) {
-          $control = $("[name='" + name + "']:last", $form);
-        }
+
         if (!fields[name]) {
           fields[name] = {};
         }
@@ -206,6 +215,9 @@ if (typeof jQuery === 'undefined') {
           $(this).trigger("keyup");
         });
       }
+      $("[type='reset']", $form).bind("click", function() {
+        thisScope._reset();
+      });
       $form.submit(function(e) {
         _validateAllControls();
         if ($form.hasClass("fh-input-error")) {
@@ -476,7 +488,7 @@ if (typeof jQuery === 'undefined') {
     message: "请选择一项",
     validate: function($input) {
       if ($input.is("select")) {
-        return !$("option:first", $input).is(":selected");
+        return $("option:first", $input).val() !== $input.val();
       }
       return true;
     },
@@ -548,4 +560,41 @@ if (typeof jQuery === 'undefined') {
       return this.message;
     }
   };
+
+  $.fn.formHelper.validators.func = {
+    message: "请输入合法值",
+    validate: function($input, opts) {
+      var val = $input.val();
+      if (opts && typeof opts.func === "function") {
+        var result = opts.func.call(this, val);
+        return result;
+      }
+      return true;
+    },
+    getMessage: function() {
+      return this.message;
+    }
+  };
+
+  // not finished
+  $.fn.formHelper.validators.callback = {
+    message: "请输入合法值",
+    validate: function($input, opts) {
+      var val = $input.val();
+      var dfd = new $.Deferred(),
+      var result = {valid: true};
+      if (val !== '') {
+        if (opts && typeof opts.callback === "function") {
+          var response = opts.callback.call(val);
+          result = {valid: response};
+        }
+      }
+      dfd.resolve($input, result);
+      return dfd;
+    },
+    getMessage: function() {
+      return this.message;
+    }
+  };
+
 }(window.jQuery));
